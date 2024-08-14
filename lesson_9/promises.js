@@ -7,20 +7,18 @@ async function getRandomInt(min, max) {
 }
 
 
-function delayPromise(value) {
-    return new Promise((res) => {
-      const timeout = getRandomInt(1, 5) *  1000;
-      setTimeout(() => res(value), timeout);
-    });
+function getPromisArray() {
+  let promiseArray = [];
+
+  for (let i=0; i < 3; i++) {
+      promiseArray.push(new Promise((resolve) => {
+          setTimeout(() => resolve(i + 1), getRandomMilisec());
+      }))
   }
+  return promiseArray;
+}
 
-  const promise1 = delayPromise(1);
-  const promise2 = delayPromise(2);
-  const promise3 = delayPromise(3);
-
-  Promise.race([promise1, promise2, promise3]).then(result => {
-    console.log(result);
-  });
+Promise.race(getPromisArray()).then((data) => console.log('The first resolved promise is:', data));
 
 
 ///Сделайте функцию getNum, которая возвращает промис, который с задержкой в 3 секунды выведет случайное число от 1 до 5. 
@@ -28,25 +26,18 @@ function delayPromise(value) {
 //затем возводить его в квадрат и выводить на экран.
 
 
-function getNumber() {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const randomNumber = getRandomInt(1 , 5);
-            resolve(randomNumber); 
-        }, 3000); 
-    });
+function getNum(min, max, delay) {
+  return new Promise((resolve) => setTimeout(() => {
+      resolve(Math.floor(Math.random() * (max - min + 1)) + min);
+  }, delay * 1000));
 }
 
-async function getPowNumber() {
-    try {
-        const number = await getNumber(); 
-        console.log(`Квадрат числа ${number}: ${number  *  number}`);
-    } catch (error) {
-        console.error('Ошибка при получении числа:', error);
-    }
+async function getSquareNum(min, max, delay) {
+  const number = await getNum(min, max, delay);
+  return number ** 2;
 }
 
-getPowNumber();
+getSquareNum(1, 5, 3).then(data => console.log(`The getNum square is: ${data}`));
 
 
 // //Сделайте функцию getNum, которая возвращает промис, который с задержкой в 3 секунды выведет 
@@ -55,22 +46,10 @@ getPowNumber();
 // //результата функции, затем будет дожидаться результата второй функции,
 // //а затем найдет сумму полученных чисел и выводит на экран.
 
-function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+async function getSumOfNums() {
+  const number1 = await getNum(1, 5, 3);
+  const number2 = await getNum(6, 10, 5);
+  return number1 + number2;
+}
 
-  function getNum() {
-    return delay(3000).then(() => getRandomInt(1, 5));
-  }
-
-  function getNum2() {
-    return delay(5000).then(() => getRandomInt(6, 9));
-  }
-
-  async function sumNumbers() {
-    const num1 = await getNum();
-    const num2 = await getNum2();
-    console.log(`Сумма чисел: ${num1 + num2}`);
-  }
-
-  sumNumbers(); 
+getSumOfNums().then(data => console.log(`The sum of promise's numbers is: ${data}`));
