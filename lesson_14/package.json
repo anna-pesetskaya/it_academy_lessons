@@ -1,0 +1,21 @@
+{
+  "name": "lesson_14",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "eslint": "eslint .",
+    "test": "npm run eslint && jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "jest": "^29.7.0",
+    "jest-html-reporters": "^3.1.7"
+  },
+  "devDependencies": {
+    "eslint": "^9.9.0",
+    "eslint-plugin-jest": "^28.8.0"
+  }
+}
