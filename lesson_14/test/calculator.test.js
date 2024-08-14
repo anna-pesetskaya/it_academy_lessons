@@ -67,8 +67,6 @@ describe('Calculator class functionality', () => {
             expect(result).toBe(-4);
             expect(result).not.toBe(1);
         });
-    
-        
     });
     
 
@@ -97,8 +95,7 @@ describe('Calculator class functionality', () => {
             expect(result).toBe(5);
             expect(result).not.toBe(0);
         });
-
-        
+     
     });
 
     
@@ -110,8 +107,7 @@ describe('Calculator class functionality', () => {
           expect(result).not.toBe(0);
         });
       
-        
-      
+          
         test('Should return the same number if the devider is 1', async () => {
           const result = await calculator.divide(3, 1);
           expect(result).toEqual(3);
