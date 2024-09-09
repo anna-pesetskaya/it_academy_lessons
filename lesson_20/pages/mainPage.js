@@ -49,28 +49,33 @@ class MainPage extends Base {
     return this.page.locator('//*[@id="dropdownMenuUser"]/span[@class = "icon icon--user-profile is-auth"]')
   };
 
+   
+
   async acceptCoockies() {
     await this.cookiesPanel.waitFor({ state: 'visible', timeout: 7000 });
-    await this.click(this.acceptButton);
+    await this.acceptButton.click();
 
   };
+
+  async clickToAuthorise() {
+    await this.authPicture.click();
+    await this.authWay.waitFor({ state: 'visible', timeout: 10000 });
+    await this.authWay.click();
+  }
 
   async search(searchValue) {
     await this.searchOpenBtn.waitFor({ state: 'visible', timeout: 7000 });
-    await this.click(this.searchOpenBtn);
-    await this.searchField.waitFor({ state: 'visible', timeout: 7000 });
-    await this.click(this.searchField);
+    await this.searchOpenBtn.click();
+    await this.searchField.waitFor({ state: 'visible', timeout: 7000 }); 
+    await this.searchField.click()
     await this.searchField.fill(searchValue)
-    
-  
+      
   };
 
-
-//   async click_authorisation() {
-//     await this.loginField.setValue(loginName);
-//     await this.passwordField.setValue(password)
-//     await this.pressElement(this.loginButton);
-//   }
+  async waitAndClickFirstResult() {
+    await this.searchFirstResultAutosuggestion.waitFor({ state: 'visible', timeout: 10000 }); 
+    await this.searchFirstResultAutosuggestion.click();
+  }
 
 }
 

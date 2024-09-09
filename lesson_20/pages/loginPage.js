@@ -6,7 +6,7 @@ class LoginPage extends Base {
     super(page);
   }
 
-  get headerResult() {
+  get authorisationHeader() {
     return this.page.locator('//h1[text() = "Вход в аккаунт"]');
   };
 
@@ -30,13 +30,17 @@ class LoginPage extends Base {
     return this.page.locator('#false-error') 
   };
 
+  get authState() {
+    return this.page.locator('//*[@id="dropdownMenuUser"]/span[@class = "icon icon--user-profile is-auth"]')
+  };
+
 
   async login(loginName, password) {
-    await this.headerResult.waitFor({ state: 'visible', timeout: 7000 });
-    await this.click(this.passwordAuthorization);
+    await this.authorisationHeader.waitFor({ state: 'visible', timeout: 7000 });
+    await this.passwordAuthorization.click();
     await this.phoneField.fill(loginName);
     await this.passwordField.fill(password)
-    await this.click(this.signInButton);
+    await this.signInButton.click();
   };
 }
   module.exports = LoginPage;

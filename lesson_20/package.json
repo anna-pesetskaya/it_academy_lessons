@@ -6,13 +6,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
-    "@playwright/test": "^1.46.1",
+    "@playwright/test": "^1.47.0",
     "@types/node": "^22.5.2"
   },
   "dependencies": {
     "chai": "^5.1.1",
     "mocha": "^10.7.3"
-  }
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "description": ""
 }
