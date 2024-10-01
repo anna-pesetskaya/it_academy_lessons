@@ -1,0 +1,156 @@
+[
+  {
+    "description": "  As a user\n  I want to access the Cucumber.io website\n  So that I can learn about Cucumber",
+    "elements": [
+      {
+        "description": "",
+        "id": "testing-cucumber.io-website-login-and-logout;verify-the-title-of-the-homepage",
+        "keyword": "Scenario",
+        "line": 7,
+        "name": "Verify the title of the homepage",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 8,
+            "name": "I navigate to https://cucumber.io/ page",
+            "result": {
+              "status": "undefined",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 9,
+            "name": "the title should be \"BDD Testing & Collaboration Tools for Teams | Cucumber\"",
+            "result": {
+              "status": "undefined",
+              "duration": 0
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "testing-cucumber.io-website-login-and-logout;user-login",
+        "keyword": "Scenario",
+        "line": 11,
+        "name": "User Login",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 12,
+            "name": "I navigate to https://studio.cucumber.io/users/sign_in page",
+            "result": {
+              "status": "undefined",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "I input valid username \"username\" into \"Username Field\" and password \"password\" into \"Password Field\"",
+            "result": {
+              "status": "undefined",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "I click on \"Sign In Button\" button",
+            "result": {
+              "status": "undefined",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 15,
+            "name": "I should be redirected to the url that contains \"/projects\" inside it",
+            "result": {
+              "status": "undefined",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "I should see \"Side Menu\"",
+            "result": {
+              "status": "undefined",
+              "duration": 0
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "testing-cucumber.io-website-login-and-logout;user-logout",
+        "keyword": "Scenario",
+        "line": 19,
+        "name": "User Logout",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 20,
+            "name": "I click on \"User Button\" button",
+            "result": {
+              "status": "undefined",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "I click on \"Sign Out Button\" button",
+            "result": {
+              "status": "undefined",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 22,
+            "name": "I should be redirected to the url that contains \"/sign_in\" inside it",
+            "result": {
+              "status": "undefined",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 23,
+            "name": "I should see \"Sign In Button\"",
+            "result": {
+              "status": "undefined",
+              "duration": 0
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "testing-cucumber.io-website-login-and-logout",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Testing Cucumber.io website login and logout",
+    "tags": [],
+    "uri": "features\\auth.feature"
+  }
+]
