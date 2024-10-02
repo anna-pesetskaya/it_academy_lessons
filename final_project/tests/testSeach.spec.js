@@ -3,8 +3,6 @@ const MainPage = require('../pages/mainPage')
 const SearchResultsPage = require('../pages/searchResultsPage')
 const {getRandomKeyFromDictionary} = require('../helpers/utils.js');
 const { url, testData, phoneModelsLanguageVariants, links } = require('../helpers/constants.js');
-const {checkTextInElements} = require('../helpers/helpers.js');
-
 
 
 

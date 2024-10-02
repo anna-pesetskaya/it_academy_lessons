@@ -23,14 +23,5 @@ async function parsePricesFromElements(elements) {
   return prices;
 }
 
-async function checkTextInElements(expectedText) {
-  const elements = this.itemName;
-  const count = await elements.count();
-  for (let i = 0; i < count; i++) {
-    const textContent = await elements.nth(i).innerText();
-    assert(textContent.includes(expectedText), `Элемент ${i + 1} не содержит текст: "${expectedText}"`);
-}
-}
 
-
-module.exports = { getInnerTextsFromWebElements, parsePricesFromElements, checkTextInElements }
+module.exports = { getInnerTextsFromWebElements, parsePricesFromElements }
