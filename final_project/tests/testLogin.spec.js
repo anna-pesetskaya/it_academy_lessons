@@ -15,7 +15,7 @@ test.describe('A1.by authrorisation in personal accout', async function () {
 
       await page.goto(url.baseUrl), { waitUntil: 'networkidle' };
       await mainPage.acceptCoockies();
-      await mainPage.clickToAuthorise();
+      await mainPage.authorise();
     })
   
     test('should enter into personal account with correct data', async ({page}) => {
@@ -25,6 +25,6 @@ test.describe('A1.by authrorisation in personal accout', async function () {
 
     test('should thow error when enter into personal account with incorrect password', async ({page}) => {
       await loginPage.login(authData.validLogin, authData.invalidPassword)
-      await expect (loginPage.errorMessage).toContainText('Неверный пароль или номер телефона');;
+      await expect(loginPage.errorMessage).toContainText('Неверный пароль или номер телефона');;
   })
 })

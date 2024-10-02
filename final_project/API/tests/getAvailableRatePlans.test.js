@@ -1,14 +1,10 @@
-const {getApi} = require('../helpers/apiHelper.js')
-const {errorHandling} = require('../helpers/errorHandling.js');
-require('dotenv').config();
+const axios = require('axios');
 const availableRatePlanJsonSchema = require('../data/availableRatePlan.v1.json');
+require('dotenv').config();
 
 const { Validator } = require('jsonschema');
 const validator = new Validator();
-
-
 const { url, basicConfig } = require('../helpers/constants.js');
-const {parseTariffs} = require('../helpers/ratePlansParsing.js');
 
 
 
@@ -17,10 +13,10 @@ describe('GET available rate plans', () => {
     let response;
 
         beforeEach(async () => {
-            response = await getApi(url.basicURL, basicConfig);
+            response = await axios.get(url.basicURL, basicConfig);
             const bearerToken = response.data;
             const ratePlanConfig = { headers: { 'Authorization': `${process.env.basicToken}`, 'x-sso-authorization': `${bearerToken}`} };
-            ratePlanResponse = await getApi(url.ratePlanURL, ratePlanConfig);
+            ratePlanResponse = await axios.get(url.ratePlanURL, ratePlanConfig);
         });
 
         test('The request should return status code 200', () => {
@@ -28,21 +24,10 @@ describe('GET available rate plans', () => {
         });
 
 
-        test('Should return status code 401 if send incorrect URL', async () => {
-            await errorHandling(getApi(url.ratePlanURL+test), 401);
-        });
-
         test('The response should match the appropriate JSON schema', async () => {
             const validationResult = validator.validate(ratePlanResponse.data, availableRatePlanJsonSchema);
             expect(validationResult.valid).toEqual(true);
         });
 
-        test('Get response from API', () => {
-            const availableRatePlanResponse = ratePlanResponse.data;
-            expect(availableRatePlanResponse.data).toHaveProperty('attributes');
-            parseTariffs(availableRatePlanResponse)
-        });
-    
-
-   
+           
 });

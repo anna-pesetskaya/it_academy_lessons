@@ -1,5 +1,7 @@
 const { Base } = require('./basePage');
 const { expect } = require('@playwright/test');
+const {expectedUrls} = require('../helpers/constants.js');
+
 
 
 class MainPage extends Base {
@@ -14,8 +16,6 @@ class MainPage extends Base {
   get acceptButton() {
     return this.page.locator('//form[@id="CookiesStickyPanel"]//div[@class="cookies-buttons-wrap"]/button[@data-action-button="acceptAll"]')
   }
-
-  
 
   get cart() {
     return this.page.locator('#miniCart');
@@ -106,100 +106,95 @@ class MainPage extends Base {
 
   };
 
-  async clickToAuthorise() {
+  async authorise() {
     await this.authPicture.click();
     await this.waitElementVisible(this.authWay)
     await this.authWay.click();
   }
 
-  async search(searchValue) {
+  async searchForValue(searchValue) {
     await this.waitElementVisible(this.searchOpenBtn)
     await this.searchOpenBtn.click();
     await this.waitElementVisible(this.searchField)
     await this.searchField.click()
     await this.searchField.fill(searchValue)
-    await this.searchField.press('Enter');
-    await this.page.waitForLoadState('domcontentloaded');  
+    
   };
 
-  async clickAndSearch(searchValue) {
-    await this.waitElementVisible(this.searchOpenBtn)
-    await this.searchOpenBtn.click();
-    await this.waitElementVisible(this.searchField)
-    await this.searchField.click()
-    await this.searchField.fill(searchValue)
-  };
-
-  async waitAndClickFirstResult() {
+  async selectFirstSearchResult() {
     await this.waitElementVisible(this.searchFirstResultAutosuggestion)
     await this.searchFirstResultAutosuggestion.click();
   }
 
-  async openEShop() {
+  async openSmartphonesShop() {
     await this.eShopLink.click()
     await this.waitElementVisible(this.smartphonesLink)
     await this.smartphonesLink.click()
   }
 
-  async enterEmailForNewsSubscription(email) {
+  async subscribeToNewsletter(email) {
     await this.waitElementVisible(this.subscriptionEmailInput)
     await this.subscriptionEmailInput.click()
     await this.subscriptionEmailInput.fill(email);
     await this.subscriptionEmailSendButton.click()
   }
 
-  async checkPopUpInfo(textToFind, textToCheck) {
+  async verifyPopupInfo(expectedTitle, expectedText) {
     await this.waitElementVisible(this.popUpWindow)
     const popUpWindowExists = await this.popUpWindow.count() > 0;
     if (popUpWindowExists) {
       const firstDivLocator = this.popUpWindow.locator(".toast-content-title");
-      await expect(firstDivLocator).toHaveText(textToFind);
+      await expect(firstDivLocator).toHaveText(expectedTitle);
       
       const secondDivLocator = this.popUpWindow.locator(".toast-content-text");
-      await expect(secondDivLocator).toHaveText(textToCheck);   
+      await expect(secondDivLocator).toHaveText(expectedText);   
     }
   };
 
-  async confirmUnsubscribe(textToCheck) {
-    await expect (this.aboutCompanyTitle).toHaveText(textToCheck);
+  async confirmNewsletterUnsubscribe(expectedText) {
+    await expect (this.aboutCompanyTitle).toHaveText(expectedText);
     await this.confirmUnsibscribeLink.click() 
   }
 
-  async checkLinksFromMainPage(links) {
+  async verifyMainPageLinks(links) {
     for (const link of links) {
       await this.page.waitForSelector(link.selector);
-  
-      if (link.name === 'Онлайн-кинотеатр VOKA') {
-        const [newPage] = await Promise.all([
-          this.page.waitForEvent('popup'),
-          this.page.click(link.selector)
-        ]);
-  
-        await newPage.waitForLoadState('domcontentloaded');
-        const newUrl = newPage.url();
-        console.log(newUrl)
-  
-        if (newUrl !== 'https://internet.a1.by/minsk/iptv') {
-          console.error(`${link.name} opened incorrect URL: ${newUrl}`);
-        }
-      } else {
-        await this.page.click(link.selector);
-        await this.page.waitForLoadState('load');
-  
-        const currentUrl = this.page.url(); 
-        if (link.name === 'Роуминг') {
-          if (currentUrl !== 'https://roaming.a1.by/b2c?_gl=1*1ammk1*_gcl_au*MTM2NjQ4MDU0My4xNzI3MzYzNzMw*_ga*NzIwMDczNC4xNzI3MzYzNzI5*_ga_B1TB6FBMCH*MTcyNzM2MzczMC4xLjAuMTcyNzM2MzczMC42MC4wLjExNTc0MjE4NDI.') {
-            console.error(`${link.name} opened incorrect URL: ${currentUrl}`);
-          }
-        } else if (currentUrl !== 'https://www.a1.by' + link.href) {
-          console.error(`${link.name} opened incorrect URL: ${currentUrl}`);
-        }
+
+      const currentUrl = await this.handleLinkClick(link);
+      if (currentUrl) {
+        this.verifyUrl(link, currentUrl);
       }
-  
       await this.page.goBack();
       await this.page.waitForLoadState('load');
-    }
+    } 
   }
+
+  
+async handleLinkClick(link) {
+    if (link.name === 'Онлайн-кинотеатр VOKA') {
+      const [newPage] = await Promise.all([
+        this.page.waitForEvent('popup'),
+        this.page.click(link.selector)
+      ]);
+      await newPage.waitForLoadState('domcontentloaded');
+      return newPage.url();
+    } else {
+      await this.page.click(link.selector);
+      await this.page.waitForLoadState('load');
+      return this.page.url();
+    }
+}
+verifyUrl(link, currentUrl) {
+  const expectedUrl = expectedUrls[link.name] || ('https://www.a1.by' + link.href);
+  if (currentUrl !== expectedUrl) {
+    console.log(`${link.name} opened incorrect URL: ${currentUrl}`);
+  }
+}
+
+
+
+
+
 }
 
 module.exports = MainPage;

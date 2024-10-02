@@ -1,7 +1,7 @@
 const { Base } = require('./basePage');
-
+const { expect } = require('@playwright/test');
 const {getRandomInt} = require('../helpers/utils.js');
-const {makeParseFloat} = require('../helpers/utils.js');
+const {convertStringToFloat} = require('../helpers/utils.js');
 
 
 
@@ -10,28 +10,24 @@ class EShopPage extends Base {
     super(page);
   }
 
-  get checkproductBoxDiscount() {
+  get checkBoxDiscountInFilters() {
     return this.page.locator('//label[@for="i-bubbles-collapsed-1"]//span[@class="input-indicator"]');
   };
 
   get eShopProductCards() {
-    return this.page.locator('//div[@class = "product-listing-productBox "]');
+    return this.page.locator('//div[@class = "product-listing-box "]');
   };
 
   get goToPurchaseButtons() {
     return this.page.locator('//span[@class="button-label"][contains(text(),"Перейти к покупке")]');
   };
 
-  get discountLabel() {
+  get discountLabelOnProduct() {
     return this.page.locator('//div[@class = "plp-bubble-item PROMO"]')
   }
 
-  get priceBlock() {
+  get priceBlockInDeviceCard() {
     return this.page.locator('//div[@class="price-block"]')
-  }
-
-  get searchResultHeader() {
-    return this.page.locator('//main//h1');
   }
 
   get buyInOneClickButton() {
@@ -54,7 +50,7 @@ class EShopPage extends Base {
     return this.page.locator('//form[@id="modal-buy"]//input[@name="email"]') 
   }
 
-  get installmentCheckproductBox() {
+  get installmentCheckProductBox() {
     return this.page.locator('//form[@id="modal-buy"]//input[@id="instalments"]/../span[@class="input-indicator"]') 
   }
 
@@ -70,27 +66,27 @@ class EShopPage extends Base {
     return this.page.locator('//div[@id="view-store-list"]')
   }
 
-  get shopListField() {
+  get listWithTownsNames() {
     return this.page.locator('//form[@id="select-filter-0"]/div/label')
   }
 
-  get shopOptions() {
+  get optionsInTheTownNamesDropList() {
     return this.page.locator('//li[@class = "select2-results__option"]')
   }
 
-  get shopAdress() {
+  get shopAdresses() {
     return this.page.locator('.map-center-info-address-text')
   }
 
-  get shopsOnTheMapLink() {
+  get storesOnTheMapLink() {
     return this.page.locator('//span[contains(text(),"Магазины А1 на карте")]')
   }
 
-  get forAllOption() {
+  get forAllTab() {
     return this.page.locator('//div[@class="tabs-controls-item is-visible"]//button[@type="button"]/span[text() = "Для всех"]/..')
   }
 
-  get promoPriceFromDeviceCard() {
+  get devicePriceFromDeviceCard() {
     return this.page.locator('//div[@id="final-price-id-for-ajaxpromoPrice"]/p/span')
   }
 
@@ -110,42 +106,42 @@ class EShopPage extends Base {
     return this.page.locator('//a[@class="chips-btn"]')
   }
 
+  get discontLabelOnDeviceCard() {
+    return this.page.locator('.plp-bubble-item.PROMO')
+  }
+
   
 
 
 
-  async searchDiscountLabels() {
-    await this.waitElementVisible(this.checkproductBoxDiscount)
-    await this.checkproductBoxDiscount.click();
-    const productBoxes = await this.eShopProductCards;
-    const count = await productBoxes.count();
+  async checkDiscountLabelsOnFilteredProducts() {
+    await this.waitElementVisible(this.checkBoxDiscountInFilters)
+    await this.checkBoxDiscountInFilters.click();
+    const eShopProductCards = await this.eShopProductCards;
+    const eShopProductCardsCount = await eShopProductCards.count();
 
-    for (let i = 0; i < count; i++) {
-        const productBox = productBoxes.nth(i);
-        const hasPromo = await productBox.locator(".plp-bubble-item.PROMO").count() > 0;
+    for (let i = 0; i < eShopProductCardsCount; i++) {
+        const productBox = eShopProductCards.nth(i);
+        const hasPromo = await productBox.locator(this.discontLabelOnDeviceCard).count() > 0;
         if (hasPromo) {
-            console.log(`Элемент ${i + 1} содержит ярлык скидки`);
+          expect(hasPromo).toBe(true, `Элемент ${i + 1} содержит ярлык скидки`);
         } else {
-            console.log(`Элемент ${i + 1} не содержит ярлык скидки`);
+          expect(hasPromo).toBe(false, `Элемент ${i + 1} не содержит ярлык скидки`);
         }
     }
   };
 
   async selectRandomEShopItem() {
-    const count = await this.goToPurchaseButtons.count()
-    if (count > 0) {
-      const randomIndex = getRandomInt(count);
-      await this.goToPurchaseButtons.nth(randomIndex).click();
-    } else {
-        console.log('Нет доступных элементов для клика');
-    }
+    const count = await this.goToPurchaseButtons.count() 
+    const randomIndex = getRandomInt(count);
+    await this.goToPurchaseButtons.nth(randomIndex).click();
   }
 
-  async clickAndFillOneClickWndFields(fio, phone, email) {
-    await this.waitElementVisible(this.priceBlock)
+  async fillBuyInOneClickFormAndCheckButtonAvailability(fio, phone, email) {
+    await this.waitElementVisible(this.priceBlockInDeviceCard)
     await this.waitElementVisible(this.buyInOneClickButton)
     await this.buyInOneClickButton.click()
-    await this.waitElementVisible(this.priceBlock)
+    await this.waitElementVisible(this.priceBlockInDeviceCard)
     await this.waitElementVisible(this.oneClickBoughtModalWindow)
     await this.fullName.click()
     await this.fullName.fill(fio)
@@ -153,84 +149,75 @@ class EShopPage extends Base {
     await this.contactPhone.fill(phone)
     await this.email.click()
     await this.email.fill(email)
-    await this.installmentCheckproductBox.click()
+    await this.installmentCheckProductBox.click()
+  }
 
+  async assertBuyButtonIsVisibleAndEnabled() {
     const myButton = await this.buyButton;
     const isDisabled = await myButton.getAttribute('disabled') !== null;
     const isVisible = await myButton.isVisible();
-    if (isVisible && !isDisabled) {
-        console.log('Элемент кликабелен');
-    } else {
-        console.log('Элемент не кликабелен');
-    }
+    expect(isVisible).toBe(true);
+    expect(isDisabled).toBe(false);
   }
 
-  async checkTransparency() {
+  async checkShopsPageModalTransparency() {
     await this.waitElementVisible(this.availabilityInShopsButton)
     await this.availabilityInShopsButton.click()
     await this.waitElementVisible(this.availabilityInShopsPage)
     await this.page.waitForLoadState('domcontentloaded');
     const transparencyState = await this.page.$eval('#view-store-list', el => window.getComputedStyle(el).zIndex);
-    console.log(transparencyState)
-    if (Number(transparencyState) <= 0) {
-        throw new Error("Модальное окно прозрачно, слетел z-index в стилях окна");
-    }
+    expect(Number(transparencyState)).toBeGreaterThan(0, "Модальное окно прозрачно, слетел z-index в стилях окна");
   }
 
-  async checkShopsFiltering() {
+  async clickShopListOnAvailabilityInShopsPage() {
     await this.waitElementVisible(this.availabilityInShopsButton)
     await this.availabilityInShopsButton.click();
     await this.waitElementVisible(this.availabilityInShopsPage)
     await this.page.waitForLoadState('domcontentloaded');
-    await this.shopListField.click();
+    await this.listWithTownsNames.click();
+  }
+  
+  async clickAndGetRandomTownName() {
+    let townName = ''
+    const shopsCount = await this.optionsInTheTownNamesDropList.count();
+    expect(shopsCount).toBeGreaterThanOrEqual(0, 'Количество магазинов не может быть меньше 0');
+    expect(shopsCount).toBeGreaterThan(0, 'Нет доступных элементов для клика');
+    const randomIndex = getRandomInt(shopsCount);
+    townName = await this.optionsInTheTownNamesDropList.nth(randomIndex).locator('.value');
+    const valueLocator = this.optionsInTheTownNamesDropList.nth(randomIndex).locator('.value');
+    await this.page.evaluate(el => el.click(), await valueLocator.elementHandle());
+    return townName;
+  }
 
-    const shopsCount = await this.shopOptions.count();
-    let address; 
-
-    if (shopsCount > 0) {
-        const randomIndex = getRandomInt(shopsCount);
-        address = await this.shopOptions.nth(randomIndex).locator('.value').textContent();
-        const valueLocator = this.shopOptions.nth(randomIndex).locator('.value');
-        await this.page.evaluate(el => el.click(), await valueLocator.elementHandle());
-  } else {
-        console.log('Нет доступных элементов для клика');
-        return; 
-    }
     
-    if (address) {
-      const shopTownName = this.shopAdress;
-      const fullShopAdresses = await shopTownName.allTextContents(); 
-      for (let shopTownName of fullShopAdresses) {
-        if (shopTownName.includes(address)) {
-          console.log(`Слово ${address} найдено в адресе: ${fullShopAdresses}`);
-        }
-      }
+ 
+  async checkTownNameInShopAddresses(townName) { 
+    const shopAdresses = this.shopAdresses;
+    const fullShopAdresses = await shopAdresses.allTextContents(); 
+    let addressFound = false;
+    for (let shopAdress of fullShopAdresses) {
+      if (shopAdress.includes(townName)) {
+        addressFound = true;
+        assert.strictEqual(addressFound, true, 'Название города не было найдено в списке адресов.');
+      }   
+    } 
+  }
 
-    } else {
-      console.log('Адрес не был выбран.');
-    }
-  } 
-
-  async selectShowOnTheMap() {
+  async clickOnStoresOnTheMapLink() {
     await this.waitElementVisible(this.availabilityInShopsButton)
     await this.availabilityInShopsButton.click()
     await this.waitElementVisible(this.availabilityInShopsPage)
     await this.page.waitForLoadState('domcontentloaded');
-    await this.shopsOnTheMapLink.click()
+    await this.storesOnTheMapLink.click()
   }
 
-  async addDeviceToCart() {
-    await this.waitElementVisible(this.forAllOption)
-    await this.forAllOption.click()
-    const promoPriceFromDeviceCard = await this.promoPriceFromDeviceCard.innerText();
-    const numericPriceWithoutRubFromDeviceCard = makeParseFloat(promoPriceFromDeviceCard);
-    const deviceNameFromDeviceCard= await this.searchResultHeader.innerText()
-    await this.buyFullPriceButton.click()
-    return [numericPriceWithoutRubFromDeviceCard, deviceNameFromDeviceCard];
-    
+  async clickForAllTab() {
+    await this.waitElementVisible(this.forAllTab)
+    await this.forAllTab.click()
+     
   }
 
-  async checkMaxPriceFilter(price) {
+  async setAndVerifyMaxPriceFilter(price) {
     await this.waitElementVisible(this.priceMaxField)
     await this.priceMaxField.click();
     await this.priceMaxField.fill(price);
@@ -240,83 +227,11 @@ class EShopPage extends Base {
 
     for (let i = 0; i < count; i++) {
         const devicePriceText = await this.devicePrices.nth(i).textContent();
-        const devicePrice = makeParseFloat(devicePriceText);
-        if (devicePrice < makeParseFloat(price)) {
-          console.log(`Цена ${devicePrice} верная и меньше 300.`);
-      } else {
-          throw new Error(`Цена ${devicePrice} неверная или больше 300.`);
-      }
-    }
-}
-
-
-
-  async prepareForEShopTest(mainPage, searchResultsPage) {
-    await mainPage.openEShop();
-    await searchResultsPage.waitElementVisible(searchResultsPage.searchResultHeader);
-    await expect(searchResultsPage.searchResultHeader).toHaveText('Смартфоны');
-  }
-
-  async prepareForEShopRandomTest(mainPage, searchResultsPage, eShopPage) {
-    await mainPage.openEShop();
-    await searchResultsPage.waitElementVisible(searchResultsPage.searchResultHeader);
-    await expect(searchResultsPage.searchResultHeader).toHaveText('Смартфоны');
-    await eShopPage.selectRandomEShopItem();
-  }
-
-
-  async devicePricesComparison(numericPriceWithoutRubFromDeviceCard, totalSum, numericTotalPriceFromCartWithoutRub, numericSubTotalPriceFromCartWithoutRub, promoPriceTexts)  {
-    if ((numericPriceWithoutRubFromDeviceCard) !== totalSum ||
-        (numericPriceWithoutRubFromDeviceCard) !== numericTotalPriceFromCartWithoutRub ||
-        (numericPriceWithoutRubFromDeviceCard) !== numericSubTotalPriceFromCartWithoutRub) {
-        throw new Error(`Цены за оборудование отличаются от цены в карточке товара: ожидаемая ${numericPriceWithoutRubFromDeviceCard}, "Цена в таблице" ${promoPriceTexts}, "Сейчас к оплате" ${numericTotalPriceFromCartWithoutRub}, "Цена товара" ${numericSubTotalPriceFromCartWithoutRub}`);
-    } else {
-        console.log(`Общая стоимость за заказ совпадает с "Сейчас к оплате" и "Ценой товара из карточки"`);
-    }
-
-
-  }
-
-  async deviceNamesComparison(deviceNameFromDeviceCard, deviceNamesTexts)  {
-    if (deviceNamesTexts.includes(deviceNameFromDeviceCard)) {
-        console.log(`Наименование товара отличается: ожидаемая ${deviceNameFromDeviceCard}, "Название товара в корзине" ${deviceNamesTexts}`);
-    } else {
-        throw new Error('Название товара совпадает в карточке товара и в корзине');
+        const devicePrice = convertStringToFloat(devicePriceText);
+        expect(devicePrice).toBeLessThan(convertStringToFloat(price), `Цена ${devicePrice} неверная или больше ${price}.`);
     }
   }
 
-  async totalDevicePricesComparison(numericPriceWithoutRubFromDeviceCard, totalSum, numericTotalPriceFromCartWithoutRub, numericSubTotalPriceFromCartWithoutRub, deviceNameFromDeviceCard, deviceNamesTexts, promoPriceTexts) {
-    if ((numericPriceWithoutRubFromDeviceCard * 2) !== totalSum ||
-            (numericPriceWithoutRubFromDeviceCard * 2) !== numericTotalPriceFromCartWithoutRub ||
-            (numericPriceWithoutRubFromDeviceCard * 2) !== numericSubTotalPriceFromCartWithoutRub) {
-        throw new Error(`Цены за оборудование  ${deviceNameFromDeviceCard} отличаются от цены в карточке товара: ожидаемая ${numericPriceWithoutRubFromDeviceCard * 2}, "Цена в таблице" ${promoPriceTexts}, "Сейчас к оплате" ${numericTotalPriceFromCartWithoutRub}, "Цена товара" ${numericSubTotalPriceFromCartWithoutRub}`);
-    } else {
-            console.log(`Общая стоимость за заказ ${deviceNamesTexts} совпадает с "Сейчас к оплате" и "Ценой товара из карточки"`);
-    }
-  }
-
-  async devicesPricesComparison(numericPriceWithoutRubFromDeviceCard, numericPriceWithoutRubFromDeviceCard2, totalSum, numericTotalPriceFromCartWithoutRub, numericSubTotalPriceFromCartWithoutRub, promoPriceTexts) {
-    if ((numericPriceWithoutRubFromDeviceCard + numericPriceWithoutRubFromDeviceCard2) !== totalSum ||
-        (numericPriceWithoutRubFromDeviceCard + numericPriceWithoutRubFromDeviceCard2) !== numericTotalPriceFromCartWithoutRub ||
-        (numericPriceWithoutRubFromDeviceCard + numericPriceWithoutRubFromDeviceCard2) !== numericSubTotalPriceFromCartWithoutRub) {
-        throw new Error(`Цены за оборудование отличаются от цены в карточке товара: ожидаемая ${numericPriceWithoutRubFromDeviceCard}, "Цена в таблице" ${promoPriceTexts}, "Сейчас к оплате" ${numericTotalPriceFromCartWithoutRub}, "Цена товара" ${numericSubTotalPriceFromCartWithoutRub}`);
-    } else {
-        console.log(`Общая стоимость за заказ совпадает с "Сейчас к оплате" и "Ценой товара из карточки"`);
-    }
-  }
-
-  async devicesNamesComparison(deviceNamesTexts, deviceNameFromDeviceCard2, deviceNameFromDeviceCard) {
-    if (deviceNamesTexts.includes(deviceNameFromDeviceCard2 || deviceNameFromDeviceCard)) {
-        console.log("Элемент присутствует в списке");
-    } else {
-      throw new Error("Элемент отсутствует в списке");
-    }
-  }
-
-     
-
-
-
-
+ 
 }
 module.exports = EShopPage;

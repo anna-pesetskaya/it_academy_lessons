@@ -1,14 +1,9 @@
-const {postApi} = require('../helpers/apiHelper')
-const {getApi} = require('../helpers/apiHelper')
+const axios = require('axios');
 require('dotenv').config();
 const producrOrderJsonSchema = require('../data/productOrders.v1.json')
-
 const { Validator } = require('jsonschema');
 const validator = new Validator();
-
 const { url, basicConfig } = require('../helpers/constants.js');
-
-
 
 
 
@@ -18,10 +13,10 @@ describe('POST request to pre-order new service', () => {
     const productData = {"productType":"call_forwarding","productOfferingId":"4.294-20191008094203","subscriptionId":"000020007722165","callForwardingResponse":{"productId":"4.294-20191008094203","cfnry":"On","cfnryNumber":"375296000240","cfnryTime":"5"}}
 
     beforeEach(async () => {
-        response = await getApi(url.basicURL, basicConfig);
+        response = await axios.get(url.basicURL, basicConfig);
         const bearerToken = response.data;
         const productOrderConfig = { headers: { 'Authorization': `${process.env.basicToken}`, 'x-sso-authorization': `${bearerToken}`, 'billing-account-id' : `${process.env.billingAccoutId}`, 'user-role' : 'SelfcareSupervisorLegal'}};
-        productOrderResponse = await postApi(url.productOrderURL, productData, productOrderConfig);
+        productOrderResponse = await axios.post(url.productOrderURL, productData, productOrderConfig);
     });
 
     test('The request should return status code 200', () => {

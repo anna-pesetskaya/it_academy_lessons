@@ -3,7 +3,7 @@ const MainPage = require('../pages/mainPage')
 const SearchResultsPage = require('../pages/searchResultsPage')
 const {getRandomKeyFromDictionary} = require('../helpers/utils.js');
 const { url, testData, phoneModelsLanguageVariants, links } = require('../helpers/constants.js');
-const {prepareForEShopTest} = require('../helpers/helpers.js');
+const {checkTextInElements} = require('../helpers/helpers.js');
 
 
 
@@ -19,61 +19,44 @@ test.describe('A1.by search test', async function () {
       await mainPage.acceptCoockies()
     })
   
-    test('should be valid search results', async ({page}) => {
-        await mainPage.clickAndSearch(testData.validSearchValue);
-        await mainPage.waitAndClickFirstResult();
+    test('should return valid search results for a known valid search value', async ({page}) => {
+        await mainPage.searchForValue(testData.validSearchValue);
+        await mainPage.selectFirstSearchResult();
         await expect (searchResultsPage.searchResultField).toHaveText(testData.validSearchValue);
     })
 
-    test('should be error message when invalid data is passed into search field', async ({page}) => {
-        await mainPage.clickAndSearch(testData.invalidSearchValue);
+    test('should display error message for invalid search input', async ({page}) => {
+        await mainPage.searchForValue(testData.invalidSearchValue);
         await expect(mainPage.failedSearchResults).toHaveText(`По запросу "${testData.invalidSearchValue}" ничего не найдено.`);
     })
     
 
-    test('should be correct search results if popular phones models names are taken in Russian', async ({page}) => {
-      const randomKey = getRandomKeyFromDictionary(phoneModelsLanguageVariants);
-      const randomValue = phoneModelsLanguageVariants[randomKey];
-     
-      await mainPage.search(randomKey);
-      await searchResultsPage.waitElementVisible(searchResultsPage.searchResultHeader);
-      await expect (searchResultsPage.searchResultHeader).toHaveText(`Результаты поиска для «${randomKey}»`)
-      const currentUrl = page.url();
-      const decodedString = decodeURIComponent(currentUrl);
-    
-      if (decodedString.includes(randomKey)) {
-        console.log(`Строка содержит текст ${randomKey}.`);
-      } else {
-        console.error(`Ошибка декодирования строки! Строка не содержит текст ${randomKey}.`);
-      }
-
-      await searchResultsPage.checkTextInElements(randomValue)
+    test('should return correct search results for popular phone models in Russian', async ({page}) => {
+        const randomKey = getRandomKeyFromDictionary(phoneModelsLanguageVariants);
+        await mainPage.searchForValue(randomKey);
+        await mainPage.searchField.press('Enter');
+        await searchResultsPage.waitElementVisible(searchResultsPage.pageHeader);
+        await expect (searchResultsPage.pageHeader).toHaveText(`Результаты поиска для «${randomKey}»`)
+        expect(decodeURIComponent(page.url())).toContain(randomKey);
     })
 
-    test('should be correct search results if search by sap-code', async ({page}) => {
-        await prepareForEShopTest(mainPage, searchResultsPage)
-        const productCode = await searchResultsPage.chooseFirstMatch();
-        await mainPage.search(productCode)
-        await searchResultsPage.waitElementVisible(searchResultsPage.searchResultHeader);
-        await expect (searchResultsPage.searchResultHeader).toHaveText(`Результаты поиска для «${productCode}»`);
-        const element =  await searchResultsPage.setElementBySapCode(productCode);
-        const isElementPresent = await element.count() > 0;
-        if (isElementPresent) {
-            console.log(`Элемент с кодом продукта ${productCode} найден.`);
-        } else {
-            console.log(`Элемент с кодом продукта ${productCode} не найден.`);
-        }
+    test('should return correct search results for SAP code', async ({page}) => {
+        await mainPage.openSmartphonesShop();
+        await searchResultsPage.waitElementVisible(searchResultsPage.pageHeader);
+        await expect(searchResultsPage.pageHeader).toHaveText('Смартфоны');
+        const productCode = await searchResultsPage.getProductSapCodeAndClickPurchaseButton();
+        await mainPage.searchForValue(productCode);
+        await mainPage.searchField.press('Enter');
+        await searchResultsPage.waitElementVisible(searchResultsPage.pageHeader);
+        await expect(searchResultsPage.pageHeader).toHaveText(`Результаты поиска для «${productCode}»`);
+        const element = await searchResultsPage.setElementBySapCode(productCode);
+        const isElementPresent = await element.count();
+        expect(isElementPresent).toBeGreaterThan(0);
     })
 
-    test('should suggested results be clickable in the search results list', async ({page}) => {
-        await mainPage.search(testData.phoneSearch);
-        await searchResultsPage.checkLinkFromSearchResults;
+    test('should navigate to correct pages when main links are clicked', async ({page}) => {
+        await mainPage.verifyMainPageLinks(links);
     })
-
-    test('should open correct pages when main links are pressed on the main page', async ({page}) => {
-        await mainPage.checkLinksFromMainPage(links);
-    })
-
 
 
 

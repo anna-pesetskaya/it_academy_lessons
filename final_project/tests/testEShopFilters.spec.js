@@ -1,4 +1,4 @@
-const {test} = require('@playwright/test');
+const {test, expect} = require('@playwright/test');
 const MainPage = require('../pages/mainPage.js');
 const SearchResultsPage = require('../pages/searchResultsPage.js');
 const EShopPage = require('../pages/eShopPage.js');
@@ -7,7 +7,7 @@ const CartPage = require('../pages/cartPage.js');
 
 
 
-const { url, testData } = require('../helpers/constants.js');
+const { url } = require('../helpers/constants.js');
 
 
 test.describe('A1.by EShop tests', async function () {
@@ -27,21 +27,28 @@ test.describe('A1.by EShop tests', async function () {
     })
   
     test('should be filtered results according to chosen filter', async ({page}) => {
-      await eShopPage.prepareForEShopTest(mainPage, searchResultsPage);
-      await eShopPage.searchDiscountLabels();
+        await mainPage.openSmartphonesShop();
+        await searchResultsPage.waitElementVisible(searchResultsPage.pageHeader);
+        await eShopPage.checkDiscountLabelsOnFilteredProducts();
     })
 
     
     test('should be correct filtering in the list of A1 shops where to buy a device', async ({page}) => {
-        await eShopPage.prepareForEShopRandomTest(mainPage, searchResultsPage, eShopPage);
-        await eShopPage.checkShopsFiltering()
+        let townName = ''
+        await mainPage.openSmartphonesShop();
+        await searchResultsPage.waitElementVisible(searchResultsPage.pageHeader);
+        await eShopPage.selectRandomEShopItem()
+        await eShopPage.clickShopListOnAvailabilityInShopsPage()
+        townName = await eShopPage.clickAndGetRandomTownName()
+        await eShopPage.checkTownNameInShopAddresses(townName)
     })
 
   
 
     test('should be valid filtering with device prices', async ({page}) => {
-        await eShopPage.prepareForEShopTest(mainPage, searchResultsPage);
-        await eShopPage.checkMaxPriceFilter('300,00')
+        await mainPage.openSmartphonesShop();
+        await searchResultsPage.waitElementVisible(searchResultsPage.pageHeader);
+        await eShopPage.setAndVerifyMaxPriceFilter('300,00')
     })
 
   

@@ -43,6 +43,7 @@ class LoginPage extends Base {
     await this.waitElementVisible(this.authorisationHeader)
     await this.waitElementVisible(this.passwordAuthorization)
     await this.passwordAuthorization.click();
+    await this.waitElementVisible(this.phoneField)
     await this.phoneField.fill(loginName);
     await this.passwordField.fill(password)
     await this.signInButton.click();

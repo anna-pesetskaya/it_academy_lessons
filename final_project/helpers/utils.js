@@ -3,12 +3,11 @@ function getRandomKeyFromDictionary(dictionary) {
   return keysArray[Math.floor(Math.random() * keysArray.length)];
 }
 
-function makeParseFloat(element) {
-  const changedElement = parseFloat(element.replace(/[^\d.]/g, ''));
-  return changedElement
+function convertStringToFloat(element) {
+  return parseFloat(element.replace(/[^\d.]/g, ''));
 }
 function getRandomInt(count) {
   return Math.floor(Math.random() * count);
 }
 
-module.exports = { getRandomKeyFromDictionary, makeParseFloat, getRandomInt};
+module.exports = { getRandomKeyFromDictionary, convertStringToFloat, getRandomInt};

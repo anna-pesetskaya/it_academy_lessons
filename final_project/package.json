@@ -5,7 +5,8 @@
   "description": "tests for a1.by eshop",
   "main": "playwright.config.js",
   "directories": {
-    "test": "npx playwright test"
+    "test": "npx playwright test",
+    "format": "prettier --write ."
   },
   "scripts": {},
   "keywords": [],
@@ -13,6 +14,7 @@
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.47.2",
-    "@types/node": "^22.5.5"
+    "@types/node": "^22.5.5",
+    "prettier": "^3.3.3"
   }
 }

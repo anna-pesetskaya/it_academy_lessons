@@ -14,69 +14,58 @@ class SearchResultsPage extends Base {
     return this.page.locator('//main//div[@class="text-block-content"]/p');
   }
 
-  get searchResultHeader() {
+  get pageHeader() {
     return this.page.locator('//main//h1');
   }
 
-  get itemName() {
+  get productName() {
     return this.page.locator('//div[@class="product-listing-box "]//div[@class="product-search-item-title"]')
   }
 
    
   get elementsCards() {
-    return this.page.locator('.product-listing-item')
+    return this.page.locator('//div[@class="product-listing-item product-listing-search-result observable-element"]')
   }
 
   get elementWithPicture() {
     return this.page.locator('(//div[@class="global-search dropdown-menu"]//ul[contains(@class, "ui-autocomplete")]//a[@class="global-search-link"])[1]')
   }
 
+  get buttonPurchase() {
+    return this.page.locator('.product-listing-item-btn a')
+  }
+
+  get shortProductInformation() {
+    return this.page.locator('span.product-short-info-name')
+  }
+
+  
 
   async setElementBySapCode(productCode) {
     return this.page.locator(`div[data-product-code="${productCode}"]`);
   } 
 
 
-  async checkTextInElements(expectedText) {
-    const elements = this.itemName;
-    const count = await elements.count();
-    // Проверяем наличие текста в каждом элементе
-    for (let i = 0; i < count; i++) {
-      const textContent = await elements.nth(i).innerText();
-      if (textContent.includes(expectedText)) {
-          console.log(`Элемент ${i + 1} содержит текст: "${expectedText}"`);
-      } else {
-          console.log(`Элемент ${i + 1} не содержит текст: "${expectedText}"`);
-      }
-  }
-  }
 
-  async chooseFirstMatch() {
+
+  async getProductSapCodeAndClickPurchaseButton() {
     const itemList = this.elementsCards;
     const count = await itemList.count();
     let productCode = null;
 
     for (let i = 0; i < count; i++) {
-      const innerText = await itemList.nth(i).innerText();
-      if (innerText.includes('Перейти к покупке') && innerText.includes('руб')) {
-        break;
-      }
-      productCode = await itemList.nth(i).getAttribute('data-product-code');
-      await itemList.nth(i).locator('.product-listing-item-btn a').click();   
-      
-    return productCode;
+        const item = itemList.nth(i);
+        const innerText = await item.innerText();
+        if (innerText.includes('Перейти к покупке') && innerText.includes('руб')) {
+            productCode = await item.getAttribute('data-product-code');
+            await item.locator('.product-listing-item-btn a').click();
+            break;  
+        }
     }
-  }
+    return productCode;  
+}
+  
 
-  async checkLinkFromSearchResults() {
-    const firstLink = this.elementWithPicture; 
-    const elementText = await firstLink.locator('span.product-short-info-name').innerText();
-    await firstLink.click();
-    const headerText = await this.searchResultHeader.innerText();
-    if (elementText === headerText) {
-      console.log('Открылась правильная страница');
-  }
 
-  } 
 }
   module.exports = SearchResultsPage;
